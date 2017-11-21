@@ -1,0 +1,20 @@
+spring:
+  data:
+    elasticsearch:
+      cluster-nodes: 192.168.4.163:9300
+      local: false
+      properties:
+        transport:
+          tcp:
+            connect_timeout:60s
+      cluster:
+        name: brain
+  dubbo:
+    registry:
+      address: zookeeper://192.168.4.163:2181?backup=192.168.4.166:2181,192.168.4.168:2181
+    protocol:
+      name: dubbo
+      port: 20882
+
+
+
