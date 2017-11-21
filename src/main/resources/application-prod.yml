@@ -1,7 +1,9 @@
 spring:
     data:
       elasticsearch:
-        cluster-nodes: 10.112.189.1:9300
+        cluster: 10.112.189.1
+        port: 9300
+        pool-size: 100
         local: false
         properties:
           transport:
@@ -20,3 +22,9 @@ spring:
       #host: 10.112.189.6
 #10.112.189.6 ->112.35.28.192
 #10.112.189.5 ->112.35.28.19
+elasticsearch:
+  cluster:
+    name: brain
+  ip: 10.112.189.1
+  port: 9300
+  pool: 100

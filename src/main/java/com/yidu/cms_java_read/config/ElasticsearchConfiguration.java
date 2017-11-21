@@ -19,10 +19,14 @@ import java.net.UnknownHostException;
 public class ElasticsearchConfiguration implements FactoryBean<TransportClient>, InitializingBean, DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfiguration.class);
 
-    @Value("${spring.data.elasticsearch.cluster-nodes}")
-    private String clusterNodes;
+    @Value("${spring.data.elasticsearch.cluster.hosts}")
+    private String hosts;
+    @Value("${spring.data.elasticsearch.cluster.port}")
+    private String port;
     @Value("${spring.data.elasticsearch.cluster.name}")
     private String clusterName;
+    @Value("${spring.data.elasticsearch.pool.size}")
+    private String poolSize;
 
     private TransportClient transportClient;
     private PreBuiltTransportClient preBuiltTransportClient;
@@ -62,12 +66,10 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
     protected void buildClient() {
         try {
             preBuiltTransportClient = new PreBuiltTransportClient(settings());
-
-            String InetSocket[] = clusterNodes.split(":");
-            String address = InetSocket[0];
-            Integer port = Integer.valueOf(InetSocket[1]);
-            transportClient = preBuiltTransportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(address), port));
-
+            String hostIps[] = hosts.split(",");
+            for (String host : hostIps) {
+                transportClient = preBuiltTransportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), Integer.valueOf(port)));
+            }
         } catch (UnknownHostException e) {
             logger.error(e.getMessage());
         }
@@ -78,7 +80,11 @@ public class ElasticsearchConfiguration implements FactoryBean<TransportClient>,
      */
     private Settings settings() {
 //		Settings settings = Settings.builder().put("cluster.name", clusterName).put("client.transport.sniff", true).build();
-        Settings settings = Settings.builder().put("cluster.name", clusterName).build();
+        Settings settings = Settings.builder()
+                .put("cluster.name", clusterName)
+                .put("client.transport.sniff", true)
+                .put("thread_pool.search.size", Integer.parseInt(poolSize))
+                .build();
         return settings;
     }
 }
